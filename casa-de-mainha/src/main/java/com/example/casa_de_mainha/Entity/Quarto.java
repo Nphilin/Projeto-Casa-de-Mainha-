@@ -6,8 +6,10 @@ import lombok.*;
 
 @Entity
 @Table(name = "quartos")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString(exclude = "tipoQuarto")
 @EqualsAndHashCode(exclude = "tipoQuarto")
 public class Quarto {

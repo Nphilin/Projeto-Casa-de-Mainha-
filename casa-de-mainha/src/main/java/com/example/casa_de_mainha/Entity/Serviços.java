@@ -5,6 +5,10 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "serviços")
@@ -31,6 +35,11 @@ public class Serviços {
     private String descricao;
 
     @NotBlank(message = "O Preço é um campo obrigatório")
-    @Column(nullable = false)
+    @DecimalMin("0.00")
+    @Column(name = "preço", nullable = false, precision = 10, scale = 2)
     private BigDecimal preço;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "Serviços", cascade = CascadeType.ALL)
+    private List<ItemServiço> itemServiço = new ArrayList<>();
 }

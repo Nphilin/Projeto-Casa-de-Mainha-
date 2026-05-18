@@ -5,14 +5,20 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "reservas")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString // Como não há relações OneToMany aqui, o ToString padrão é seguro
 @EqualsAndHashCode(of = "id") // Boa prática: usar apenas o ID para equals em entidades JPA
 public class Reserva {
@@ -58,9 +64,13 @@ public class Reserva {
 
     // Enum para controle de status
     public enum StatusReserva {
-        CONFIRMADA, 
-        CANCELADA, 
-        FINALIZADA, 
+        CONFIRMADA,
+        CANCELADA,
+        FINALIZADA,
         CHECK_IN_REALIZADO
     }
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "Reserva", cascade = CascadeType.ALL)
+    private List<ItemServiço> itemServiço = new ArrayList<>();
 }
