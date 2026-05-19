@@ -30,15 +30,16 @@ public class ConsumoController {
         return consumoRepository.findAll();
     }
 
-    // 3. Buscar os consumos de uma reserva específica (Útil para o fechamento da conta)
+    // 3. Buscar os consumos de uma reserva específica (Útil para o fechamento da
+    // conta)
     @GetMapping("/reserva/{reservaId}")
-    public List<Consumo> listarPorReserva(@PathVariable Long reservaId) {
+    public List<Consumo> listarPorReserva(@PathVariable long reservaId) {
         return consumoRepository.findByReservaId(reservaId);
     }
 
     // 4. Buscar um consumo específico por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Consumo> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Consumo> buscarPorId(@PathVariable long id) {
         return consumoRepository.findById(id)
                 .map(consumo -> ResponseEntity.ok().body(consumo))
                 .orElse(ResponseEntity.notFound().build());
@@ -46,7 +47,7 @@ public class ConsumoController {
 
     // 5. Atualizar dados de um consumo (ex: corrigir valor ou descrição)
     @PutMapping("/{id}")
-    public ResponseEntity<Consumo> atualizar(@PathVariable Long id, @Valid @RequestBody Consumo consumoAtualizado) {
+    public ResponseEntity<Consumo> atualizar(@PathVariable long id, @Valid @RequestBody Consumo consumoAtualizado) {
         return consumoRepository.findById(id)
                 .map(consumo -> {
                     consumo.setDescricao(consumoAtualizado.getDescricao());
@@ -59,7 +60,7 @@ public class ConsumoController {
 
     // 6. Remover um consumo
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable long id) {
         return consumoRepository.findById(id)
                 .map(consumo -> {
                     consumoRepository.delete(consumo);

@@ -21,7 +21,7 @@ public class HospedeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Hospede> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Hospede> buscarPorId(@PathVariable long id) {
         return repository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build()); // Retorna 404 se não achar

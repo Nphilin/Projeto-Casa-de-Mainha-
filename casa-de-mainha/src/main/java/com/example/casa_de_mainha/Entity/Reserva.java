@@ -25,7 +25,7 @@ public class Reserva {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -71,6 +71,6 @@ public class Reserva {
     }
 
     @JsonIgnore
-    @OneToMany(mappedBy = "Reserva", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
     private List<ItemServiço> itemServiço = new ArrayList<>();
 }

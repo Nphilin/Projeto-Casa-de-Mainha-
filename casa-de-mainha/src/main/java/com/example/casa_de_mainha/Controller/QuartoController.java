@@ -19,7 +19,7 @@ public class QuartoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Quarto> buscar(@PathVariable Long id) {
+    public ResponseEntity<Quarto> buscar(@PathVariable long id) {
         return repository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

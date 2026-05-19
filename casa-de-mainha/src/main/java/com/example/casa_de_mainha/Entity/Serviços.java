@@ -40,6 +40,6 @@ public class Serviços {
     private BigDecimal preço;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "Serviços", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "serviços", cascade = CascadeType.ALL)
     private List<ItemServiço> itemServiço = new ArrayList<>();
 }

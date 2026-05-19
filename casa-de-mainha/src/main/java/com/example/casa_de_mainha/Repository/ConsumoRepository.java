@@ -7,7 +7,7 @@ import java.util.List;
 
 @Repository
 public interface ConsumoRepository extends JpaRepository<Consumo, Long> {
-    
+
     // Busca todos os gastos extras de uma reserva específica
     List<Consumo> findByReservaId(Long reservaId);
 }

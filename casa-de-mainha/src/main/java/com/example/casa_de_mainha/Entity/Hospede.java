@@ -8,9 +8,12 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "hospedes")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
-@ToString // Como Hospede é a "ponta" inicial (sem OneToMany ainda), o @ToString simples resolve
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString // Como Hospede é a "ponta" inicial (sem OneToMany ainda), o @ToString simples
+          // resolve
 public class Hospede {
 
     @Id

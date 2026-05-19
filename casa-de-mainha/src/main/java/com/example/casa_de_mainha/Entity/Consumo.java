@@ -10,15 +10,17 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "consumos")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
-@ToString(exclude = "reserva")    // Evita recursividade no log se Reserva tiver lista de consumos
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(exclude = "reserva") // Evita recursividade no log se Reserva tiver lista de consumos
 @EqualsAndHashCode(of = "id")
 public class Consumo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
