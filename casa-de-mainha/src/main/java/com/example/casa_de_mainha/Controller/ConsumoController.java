@@ -1,70 +1,56 @@
 package com.example.casa_de_mainha.Controller;
 
 import com.example.casa_de_mainha.Entity.Consumo;
-import com.example.casa_de_mainha.Repository.ConsumoRepository;
+import com.example.casa_de_mainha.Service.ConsumoService;
+
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/consumos")
+@RequiredArgsConstructor // Injeção via construtor, remova o @Autowired [cite: 66]
 public class ConsumoController {
 
-    @Autowired
-    private ConsumoRepository consumoRepository;
+    private final ConsumoService service; // O Controller passa a delegar tudo ao Service [cite: 96]
 
-    // 1. Registrar um novo consumo (ex: frigobar, lavanderia)
+    // 1. Registrar um novo consumo (POST = 201 Created) [cite: 254, 255]
     @PostMapping
-    public ResponseEntity<Consumo> criar(@Valid @RequestBody Consumo consumo) {
-        Consumo novoConsumo = consumoRepository.save(consumo);
-        return new ResponseEntity<>(novoConsumo, HttpStatus.CREATED);
+    public ResponseEntity<Consumo> criar(@Valid @RequestBody Consumo consumo) { // @Valid aciona as anotações da entity [cite: 155]
+        return ResponseEntity.status(201).body(service.save(consumo));
     }
 
-    // 2. Listar todos os consumos registrados no sistema
+    // 2. Listar todos
     @GetMapping
-    public List<Consumo> listarTodos() {
-        return consumoRepository.findAll();
+    public ResponseEntity<Iterable<Consumo>> listarTodos() {
+        return ResponseEntity.ok(service.findAll());
     }
 
-    // 3. Buscar os consumos de uma reserva específica (Útil para o fechamento da
-    // conta)
+    // 3. Buscar por reserva
     @GetMapping("/reserva/{reservaId}")
-    public List<Consumo> listarPorReserva(@PathVariable long reservaId) {
-        return consumoRepository.findByReservaId(reservaId);
+    public ResponseEntity<Iterable<Consumo>> listarPorReserva(@PathVariable Long reservaId) {
+        return ResponseEntity.ok(service.findByReservaId(reservaId));
     }
 
-    // 4. Buscar um consumo específico por ID
+    // 4. Buscar específico
     @GetMapping("/{id}")
-    public ResponseEntity<Consumo> buscarPorId(@PathVariable long id) {
-        return consumoRepository.findById(id)
-                .map(consumo -> ResponseEntity.ok().body(consumo))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Consumo> buscarPorId(@PathVariable Long id) {
+        // Toda a lógica de .map() e .orElse() saiu, o Service faz tudo [cite: 109, 111]
+        return ResponseEntity.ok(service.findById(id));
     }
 
-    // 5. Atualizar dados de um consumo (ex: corrigir valor ou descrição)
+    // 5. Atualizar (PUT = 200 OK) [cite: 256, 257]
     @PutMapping("/{id}")
-    public ResponseEntity<Consumo> atualizar(@PathVariable long id, @Valid @RequestBody Consumo consumoAtualizado) {
-        return consumoRepository.findById(id)
-                .map(consumo -> {
-                    consumo.setDescricao(consumoAtualizado.getDescricao());
-                    consumo.setValor(consumoAtualizado.getValor());
-                    consumo.setReserva(consumoAtualizado.getReserva());
-                    Consumo salvo = consumoRepository.save(consumo);
-                    return ResponseEntity.ok().body(salvo);
-                }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Consumo> atualizar(@PathVariable Long id, @Valid @RequestBody Consumo dados) {
+        return ResponseEntity.ok(service.atualizar(id, dados));
     }
 
-    // 6. Remover um consumo
+    // 6. Remover (DELETE = 204 No Content) [cite: 258, 259]
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable long id) {
-        return consumoRepository.findById(id)
-                .map(consumo -> {
-                    consumoRepository.delete(consumo);
-                    return ResponseEntity.noContent().<Void>build();
-                }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build(); // Retorna 204 [cite: 252]
     }
 }
