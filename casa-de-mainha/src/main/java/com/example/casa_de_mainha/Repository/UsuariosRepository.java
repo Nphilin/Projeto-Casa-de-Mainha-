@@ -16,4 +16,5 @@ public interface UsuariosRepository extends CrudRepository<Usuarios, Long> {
     Optional<Usuarios> findByLoginIgnoreCase(String login);
 
     boolean existsByLoginIgnoreCase(String login);
+
 }

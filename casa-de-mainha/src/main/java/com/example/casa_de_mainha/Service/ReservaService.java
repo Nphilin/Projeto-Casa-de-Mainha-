@@ -1,77 +1,65 @@
 package com.example.casa_de_mainha.Service;
 
+import com.example.casa_de_mainha.Entity.Reserva;
 import com.example.casa_de_mainha.Repository.ReservaRepository;
-import com.example.casa_de_mainha.Entity.Reserva; // Ajuste o pacote do model se necessário
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.casa_de_mainha.Exception.ResourceNotFoundException;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor // Lombok substitui o @Autowired e cria o construtor
 public class ReservaService {
 
-    @Autowired
-    private ReservaRepository repository;
+    private final ReservaRepository repository; // Obrigatório ser private final
 
-    // 1. Listar todas as reservas
+    @Transactional(readOnly = true)
     public List<Reserva> listarTodos() {
         return repository.findAll();
     }
 
-    // 2. Buscar uma reserva por ID
-    public Optional<Reserva> buscarPorId(Long id) {
-        return repository.findById(id);
+    @Transactional(readOnly = true)
+    public Reserva buscarPorId(Long id) {
+        // Lança a sua exceção customizada (que vira Erro 404) se não encontrar
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva não encontrada com id: " + id));
     }
 
-    // 3. Salvar uma nova reserva
     @Transactional
     public Reserva salvar(Reserva reserva) {
         return repository.save(reserva);
     }
 
-    // 4. Atualizar uma reserva existente (Padrão igual ao seu QuartoService)
     @Transactional
     public Reserva atualizar(Long id, Reserva dados) {
-        // Busca a reserva existente ou lança uma exceção se não encontrar
-        Reserva reserva = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reserva não encontrada com o ID: " + id));
+        // 1. Busca a reserva existente (já lança 404 se não achar)
+        Reserva atual = buscarPorId(id);
 
-        // Copia apenas os campos fornecidos do body para a entidade gerenciada
-        if (dados.getHospede() != null) {
-            reserva.setHospede(dados.getHospede());
-        }
-        
-        if (dados.getQuarto() != null) {
-            reserva.setQuarto(dados.getQuarto());
-        }
+        // 2. Atualiza os campos limpos, sem aquele monte de if()
+        atual.setHospede(dados.getHospede());
+        atual.setQuarto(dados.getQuarto());
+        atual.setDataCheckin(dados.getDataCheckin());
+        atual.setDataCheckout(dados.getDataCheckout());
+        atual.setStatusReserva(dados.getStatusReserva());
+        atual.setValorTotal(dados.getValorTotal());
+        atual.setItemServiço(dados.getItemServiço());
 
-        if (dados.getDataCheckin() != null) {
-            reserva.setDataCheckin(dados.getDataCheckin());
-        }
-
-        if (dados.getDataCheckout() != null) {
-            reserva.setDataCheckout(dados.getDataCheckout());
-        }
-
-        if (dados.getStatusReserva() != null) {
-            reserva.setStatusReserva(dados.getStatusReserva()); // Aqui pode ser o Enum de Status (ex: PENDENTE, CONFIRMADA)
-        }
-
-        if (dados.getValorTotal() != null) {
-            reserva.setValorTotal(dados.getValorTotal());
-        }
-
-        // 5. Persiste e retorna - o JPA emite UPDATE na transação
-        return repository.save(reserva);
+        // 3. Salva e retorna
+        return repository.save(atual);
     }
 
-    // 6. Deletar uma reserva
     @Transactional
     public void deletar(Long id) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("Não é possível deletar. Reserva não encontrada.");
-        }
-        repository.deleteById(id);
+        // Garante o Erro 404 antes de deletar
+        Reserva reserva = buscarPorId(id);
+        repository.delete(reserva);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Reserva> listarPorStatus(Reserva.StatusReserva status) {
+        return repository.findByStatusReserva(status);
     }
 }

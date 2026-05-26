@@ -13,4 +13,6 @@ public interface TipoQuartoRepository extends CrudRepository<TipoQuarto, Long> {
 
     // Busca categorias que suportem X pessoas ou mais
     List<TipoQuarto> findByCapacidadeGreaterThanEqual(Integer capacidade);
+
+    boolean existsByNomeIgnoreCase(String nome); // Método para verificar duplicata por nome, ignorando maiúsculas/minúsculas
 }

@@ -33,8 +33,9 @@ public class Usuarios {
     @Column(nullable = false)
     private String senha;
 
-    @NotBlank(message = "Preencha o campo obrigatório")
-    @Enumerated(EnumType.STRING)
+    @NotNull(message = "Preencha o campo obrigatório")
+    @ManyToOne
+    @JoinColumn(name = "perfil_id", nullable = false)
     private Perfil perfil;
 
     @CreationTimestamp
