@@ -23,8 +23,8 @@ public class UsuariosService {
     @Transactional(readOnly = true)
     public Usuarios findById(Long id) {
         // Lança exceção se não encontrado, nunca retorna null [cite: 90, 91]
-        return repository.findById(id).orElseThrow(() -> 
-            new ResourceNotFoundException ("Usuário não encontrado com ID: " + id));
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
     }
 
     @Transactional // Atomicidade: rollback automático em exceção
@@ -32,7 +32,8 @@ public class UsuariosService {
         // Verifica se o login já existe no banco antes de tentar salvar
         for (Usuarios existente : repository.findAll()) {
             if (existente.getLogin().equals(usuario.getLogin())) {
-                throw new ValidationException("Usuário", usuario.getLogin() + " (Você já tem um usuário com esse login!)");
+                throw new ValidationException("Usuário",
+                        usuario.getLogin() + " (Você já tem um usuário com esse login!)");
             }
         }
         return repository.save(usuario);
@@ -45,7 +46,7 @@ public class UsuariosService {
 
         // 2. Atualiza só os campos permitidos. Nunca faça atual = dados [cite: 288]
         // ATENÇÃO: Substitua pelos campos REAIS da sua entidade Usuarios
-       atual.setLogin(dados.getLogin());
+        atual.setLogin(dados.getLogin());
         atual.setSenha(dados.getSenha());
         atual.setPerfil(dados.getPerfil());
 
@@ -57,7 +58,7 @@ public class UsuariosService {
     public void deletar(Long id) {
         // Garante 404 antes de tentar deletar [cite: 281]
         Usuarios usuario = findById(id);
-        
+
         // repository.delete(obj) confirma a existência antes [cite: 289, 290]
         repository.delete(usuario);
     }
