@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.example.casa_de_mainha.Repository.ConsumoRepository;
+
 import com.example.casa_de_mainha.Entity.Consumo;
 import com.example.casa_de_mainha.Exception.ResourceNotFoundException;
 import com.example.casa_de_mainha.Exception.ValidationException;
@@ -11,7 +12,7 @@ import com.example.casa_de_mainha.Exception.ValidationException;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor // Lombok gera o construtor com final fields (DI) 
+@RequiredArgsConstructor // Lombok gera o construtor com final fields (DI)
 public class ConsumoService {
 
     private final ConsumoRepository consumoRepository;
@@ -25,7 +26,7 @@ public class ConsumoService {
     public Consumo findById(Long id) {
         // Lança exceção se não encontrado, nunca retorna null [cite: 90, 91]
         return consumoRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Consumo not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Consumo not found with id " + id));
     }
 
     @Transactional(readOnly = true)
@@ -48,12 +49,13 @@ public class ConsumoService {
     public Consumo atualizar(Long id, Consumo dados) {
         // 1. Busca (lança 404 se não existir graças ao método acima) [cite: 269]
         Consumo atual = findById(id);
-        
-        // 2. Atualiza só os campos permitidos. Nunca faça atual = dados. [cite: 271, 287, 288]
+
+        // 2. Atualiza só os campos permitidos. Nunca faça atual = dados. [cite: 271,
+        // 287, 288]
         atual.setDescricao(dados.getDescricao());
         atual.setValor(dados.getValor());
         atual.setReserva(dados.getReserva());
-        
+
         // 3. Salva e retorna atualizado [cite: 275, 276]
         return consumoRepository.save(atual);
     }

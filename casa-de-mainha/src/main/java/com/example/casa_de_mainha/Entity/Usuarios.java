@@ -33,7 +33,7 @@ public class Usuarios {
     @Column(nullable = false)
     private String senha;
 
-    @NotBlank(message = "Preencha o campo obrigatório")
+    @NotNull(message = "Preencha o campo obrigatório")
     private Perfil perfil;
 
     @CreationTimestamp

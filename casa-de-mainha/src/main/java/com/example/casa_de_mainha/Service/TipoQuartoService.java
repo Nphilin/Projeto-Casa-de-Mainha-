@@ -31,20 +31,23 @@ public class TipoQuartoService {
 
     @Transactional(readOnly = true)
     public TipoQuarto findById(Long id) {
-        // Lança erro 404 automaticamente se o ID do tipo de quarto não existir [cite: 90, 91]
+        // Lança erro 404 automaticamente se o ID do tipo de quarto não existir [cite:
+        // 90, 91]
         return repository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("TipoQuarto not found with id " + id)); 
+                .orElseThrow(() -> new ResourceNotFoundException("TipoQuarto não encontrado com o id " + id));
     }
 
     @Transactional
     public void deletar(Long id) {
-        TipoQuarto tipoQuarto = findById(id); // Verifica existência antes de deletar para lançar 404 se não existir [cite: 251]
+        TipoQuarto tipoQuarto = findById(id); // Verifica existência antes de deletar para lançar 404 se não existir
+                                              // [cite: 251]
         repository.delete(tipoQuarto);
     }
 
     @Transactional
     public TipoQuarto atualizar(Long id, TipoQuarto dados) {
-        // 1. Busca o tipo de quarto no banco (já lança o 404 se não achar) [cite: 269, 270]
+        // 1. Busca o tipo de quarto no banco (já lança o 404 se não achar) [cite: 269,
+        // 270]
         TipoQuarto atual = findById(id);
 
         // 2. Atualiza apenas os campos permitidos [cite: 271, 287, 288]
