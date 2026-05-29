@@ -26,7 +26,7 @@ public class ConsumoService {
     public Consumo findById(Long id) {
         // Lança exceção se não encontrado, nunca retorna null [cite: 90, 91]
         return consumoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Consumo not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Consumo não encontrado com o id " + id));
     }
 
     @Transactional(readOnly = true)

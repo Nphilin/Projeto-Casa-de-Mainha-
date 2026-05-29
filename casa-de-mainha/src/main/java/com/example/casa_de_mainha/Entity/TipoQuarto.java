@@ -9,12 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // Evita erros de serialização com Lazy Loading
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" }) // Evita erros de serialização com Lazy Loading
 @Entity
 @Table(name = "tipos_quarto")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString(exclude = "quartos")
 @EqualsAndHashCode(exclude = "quartos")
 public class TipoQuarto {

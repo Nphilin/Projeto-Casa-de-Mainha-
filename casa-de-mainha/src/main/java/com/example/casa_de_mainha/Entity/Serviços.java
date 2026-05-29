@@ -35,7 +35,7 @@ public class Serviços {
     private String descricao;
 
     @NotNull(message = "O Preço é um campo obrigatório")
-    @DecimalMin("0.00")
+    @DecimalMin("0.0")
     @Column(name = "preço", nullable = false, precision = 10, scale = 2)
     private BigDecimal preço;
 

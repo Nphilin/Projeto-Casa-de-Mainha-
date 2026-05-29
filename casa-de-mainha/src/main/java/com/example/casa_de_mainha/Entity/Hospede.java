@@ -7,8 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // Evita erros de serialização com Lazy Loading
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" }) // Evita erros de serialização com Lazy Loading
 @Entity
 @Table(name = "hospedes")
 @Getter

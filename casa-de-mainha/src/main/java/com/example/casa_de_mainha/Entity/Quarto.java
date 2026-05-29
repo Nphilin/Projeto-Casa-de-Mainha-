@@ -5,7 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // Evita erros de serialização com Lazy Loading
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" }) // Evita erros de serialização com Lazy Loading
 @Entity
 @Table(name = "quartos")
 @Getter
@@ -27,6 +27,7 @@ public class Quarto {
     // Relacionamento Muitos-para-Um: Muitos quartos pertencem a um TipoQuarto
     @ManyToOne
     @JoinColumn(name = "tipo_quarto_id", nullable = false)
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private TipoQuarto tipoQuarto;
 
     @Enumerated(EnumType.STRING)
