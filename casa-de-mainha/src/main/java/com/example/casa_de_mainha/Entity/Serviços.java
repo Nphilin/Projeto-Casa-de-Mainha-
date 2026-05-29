@@ -34,7 +34,7 @@ public class Serviços {
     @Column(nullable = false, length = 200)
     private String descricao;
 
-    @NotBlank(message = "O Preço é um campo obrigatório")
+    @NotNull(message = "O Preço é um campo obrigatório")
     @DecimalMin("0.00")
     @Column(name = "preço", nullable = false, precision = 10, scale = 2)
     private BigDecimal preço;
