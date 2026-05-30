@@ -33,17 +33,12 @@ public class Usuarios {
     @Column(nullable = false)
     private String senha;
 
+    @Enumerated(EnumType.STRING)
     @NotNull(message = "Preencha o campo obrigatório")
     private Perfil perfil;
 
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime dataCriacao;
-
-    public enum Perfil {
-        Admin,
-        Recepção,
-        Hospede
-    }
 
 }

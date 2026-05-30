@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @ToString(exclude = "tipoQuarto")
 @EqualsAndHashCode(exclude = "tipoQuarto")
 public class Quarto {
+    // Dentro da classe Quarto.java
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +35,4 @@ public class Quarto {
     @Column(nullable = false)
     private StatusQuarto status = StatusQuarto.DISPONIVEL;
 
-    public enum StatusQuarto {
-        DISPONIVEL, OCUPADO, MANUTENCAO, LIMPEZA
-    }
 }

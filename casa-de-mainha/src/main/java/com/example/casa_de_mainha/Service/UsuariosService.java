@@ -1,65 +1,87 @@
 package com.example.casa_de_mainha.Service;
 
+import com.example.casa_de_mainha.DTO.UsuariosRequestDTO;
+import com.example.casa_de_mainha.DTO.UsuariosResponseDTO;
 import com.example.casa_de_mainha.Entity.Usuarios;
 import com.example.casa_de_mainha.Repository.UsuariosRepository;
 import com.example.casa_de_mainha.Exception.ResourceNotFoundException;
 import com.example.casa_de_mainha.Exception.ValidationException;
 
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service // Marca como bean Spring gerenciado [cite: 83]
-@RequiredArgsConstructor // Lombok gera construtor com final fields (DI) [cite: 85]
+@Service
+@RequiredArgsConstructor
 public class UsuariosService {
 
     private final UsuariosRepository repository;
 
-    @Transactional(readOnly = true) // Otimiza leituras: sem lock, sem flush [cite: 87]
-    public Iterable<Usuarios> findAll() {
-        return repository.findAll();
-    }
-
+    // 1. LISTAR (Retorna uma Lista de DTOs)
     @Transactional(readOnly = true)
-    public Usuarios findById(Long id) {
-        // Lança exceção se não encontrado, nunca retorna null [cite: 90, 91]
-        return repository.findById(id)
+    public List<UsuariosResponseDTO> listar() {
+        return StreamSupport.stream(repository.findAll().spliterator(), false)
+                .map(UsuariosResponseDTO::from) // Converte Entity para DTO
+                .collect(Collectors.toList());
+    } // <-- CHAVE QUE ESTAVA FALTANDO E QUEBRAVA O SEU CÓDIGO!
+
+    // 2. BUSCAR POR ID (Retorna DTO para o Controller)
+    @Transactional(readOnly = true)
+    public UsuariosResponseDTO buscarPorId(Long id) {
+        Usuarios usuario = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
+
+        return UsuariosResponseDTO.from(usuario); // Retorna como DTO
     }
 
-    @Transactional // Atomicidade: rollback automático em exceção
-    public Usuarios save(Usuarios usuario) {
-        // Verifica se o login já existe no banco antes de tentar salvar
-        for (Usuarios existente : repository.findAll()) {
-            if (existente.getLogin().equals(usuario.getLogin())) {
-                throw new ValidationException("Usuário",
-                        usuario.getLogin() + " (Você já tem um usuário com esse login!)");
-            }
-        }
-        return repository.save(usuario);
-    }
-
+    // 3. SALVAR / CRIAR (Recebe RequestDTO e retorna ResponseDTO)
     @Transactional
-    public Usuarios atualizar(Long id, Usuarios dados) {
-        // 1. Busca (lança 404 se não existir) [cite: 269]
-        Usuarios atual = findById(id);
+    public UsuariosResponseDTO salvar(UsuariosRequestDTO dto) {
+        // Validação eficiente usando o Repository em vez de carregar tudo com laço
+        // 'for'
+        if (repository.existsByLoginIgnoreCase(dto.login())) {
+            throw new ValidationException("Usuário", dto.login() + " (Você já tem um usuário com esse login!)");
+        }
 
-        // 2. Atualiza só os campos permitidos. Nunca faça atual = dados [cite: 288]
-        // ATENÇÃO: Substitua pelos campos REAIS da sua entidade Usuarios
-        atual.setLogin(dados.getLogin());
-        atual.setSenha(dados.getSenha());
-        atual.setPerfil(dados.getPerfil());
+        Usuarios novoUsuario = new Usuarios();
+        novoUsuario.setLogin(dto.login());
+        novoUsuario.setSenha(dto.senha());
+        novoUsuario.setPerfil(dto.perfil());
 
-        // 3. Salva e retorna atualizado [cite: 275, 276]
-        return repository.save(atual);
+        Usuarios salvo = repository.save(novoUsuario);
+        return UsuariosResponseDTO.from(salvo);
     }
 
+    // 4. ATUALIZAR (Recebe RequestDTO e retorna ResponseDTO)
+    @Transactional
+    public UsuariosResponseDTO atualizar(Long id, UsuariosRequestDTO dto) {
+        // Busca a entidade bruta para manipulação interna
+        Usuarios atual = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
+
+        // Atualiza os campos a partir do DTO
+        atual.setLogin(dto.login());
+        atual.setSenha(dto.senha());
+        atual.setPerfil(dto.perfil());
+
+        Usuarios atualizado = repository.save(atual);
+        return UsuariosResponseDTO.from(atualizado);
+    }
+
+    // 5. DELETAR
     @Transactional
     public void deletar(Long id) {
-        // Garante 404 antes de tentar deletar [cite: 281]
-        Usuarios usuario = findById(id);
+        // Busca o usuario pelo ID
+        UsuariosResponseDTO usuarioDto = buscarPorId(id);
+        Usuarios usuario = repository.findById(id)
+                // Caso não encontrado lança a exception not found.
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
 
-        // repository.delete(obj) confirma a existência antes [cite: 289, 290]
+        // Se ecnotrado ele deleta.
         repository.delete(usuario);
     }
 }
