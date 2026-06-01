@@ -175,7 +175,7 @@
     <artifactId>maven-surefire-plugin</artifactId>
     <version>3.2.5</version>
     <configuration>
-        <argLine>${surefireArgLine} -XX:+AllowEnhancedClassRedefinition -noverify</argLine>
+        <argLine>${surefireArgLine}</argLine>
     </configuration>
 </plugin>
         </plugins>
