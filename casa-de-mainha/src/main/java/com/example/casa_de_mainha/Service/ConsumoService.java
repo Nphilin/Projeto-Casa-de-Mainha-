@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,7 @@ public class ConsumoService {
     }
 
     @Transactional(readOnly = true)
-    public ConsumoResponseDTO findById(Long id) {
+    public ConsumoResponseDTO findById(@NonNull Long id) {
         Consumo consumo = consumoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Consumo não encontrado com o ID: " + id));
 
@@ -64,7 +65,7 @@ public class ConsumoService {
     }
 
     @Transactional
-    public ConsumoResponseDTO atualizar(Long id, ConsumoRequestDTO dto) {
+    public ConsumoResponseDTO atualizar(@NonNull Long id, ConsumoRequestDTO dto) {
         Consumo atual = consumoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Consumo não encontrado com o ID: " + id));
 
@@ -78,7 +79,7 @@ public class ConsumoService {
     }
 
     @Transactional
-    public void deletar(Long id) {
+    public void deletar(@NonNull Long id) {
         Consumo consumo = consumoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Consumo não encontrado com o ID: " + id));
         consumoRepository.delete(consumo);

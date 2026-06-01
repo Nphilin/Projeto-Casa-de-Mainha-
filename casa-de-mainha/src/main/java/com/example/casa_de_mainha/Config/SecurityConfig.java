@@ -1,4 +1,4 @@
-package com.example.casa_de_mainha.Controller;
+package com.example.casa_de_mainha.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

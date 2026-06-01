@@ -7,35 +7,37 @@ import com.example.casa_de_mainha.DTO.UsuariosRequestDTO;
 import com.example.casa_de_mainha.Entity.Perfil;
 import com.example.casa_de_mainha.Exception.ValidationException;
 import com.example.casa_de_mainha.Repository.UsuariosRepository;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class) // Inicializa os testes com Mockito puro
+@ExtendWith(MockitoExtension.class)
 class UsuariosServiceTest {
 
     @Mock
-    private UsuariosRepository repository; // Dublê do banco de dados
+    private UsuariosRepository repository;
+
     @InjectMocks
-    private UsuariosService service; // Instancia o Service injetando o mock acima [cite: 119, 165]
+    private UsuariosService service;
 
     @Test
     void deveLancarValidationExceptionQuandoLoginJaExistir() {
-        // ARRANGE: preparação
+        // ARRANGE
+        // ATENÇÃO: a ordem dos argumentos deve bater com a declaração do seu record:
+        // record UsuariosRequestDTO(String login, String senha, Perfil perfil)
         UsuariosRequestDTO dto = new UsuariosRequestDTO("usuario_teste", "senha123", Perfil.ADMIN);
 
-        // Programando o mock: quando o service perguntar se esse login existe, o mock
-        // diz que SIM (true)
+        // Mock: quando o repositório for consultado com esse login, retorna true (já
+        // existe)
         when(repository.existsByLoginIgnoreCase("usuario_teste")).thenReturn(true);
 
-        // ACT & ASSERT (Executa esperando que a exceção seja estourada)
-        assertThrows(ValidationException.class, () -> {
-            service.salvar(dto);
-        });
+        // ACT & ASSERT: garante que a exceção correta é lançada
+        assertThrows(ValidationException.class, () -> service.salvar(dto));
 
-        // Garante que o método do repositório foi consultado exatamente 1 vez
+        // VERIFY: confirma que o repositório foi consultado exatamente 1 vez
         verify(repository, times(1)).existsByLoginIgnoreCase("usuario_teste");
     }
 }

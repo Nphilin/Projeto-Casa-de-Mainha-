@@ -7,36 +7,56 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.example.casa_de_mainha.Exception.GlobalExceptionHandler;
 import com.example.casa_de_mainha.Exception.ResourceNotFoundException;
 import com.example.casa_de_mainha.Service.UsuariosService;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest({ UsuariosController.class, GlobalExceptionHandler.class }) // Sobe apenas a camada Web isolada
+// Sobe apenas a camada Web + o GlobalExceptionHandler, SEM o SecurityConfig real
+@WebMvcTest(controllers = { UsuariosController.class, GlobalExceptionHandler.class })
+@Import(UsuariosControllerTest.TestSecurityConfig.class) // Substitui o SecurityConfig real
 class UsuariosControllerTest {
 
+    // Configuração de segurança mínima para testes:
+    // desabilita CSRF e libera todos os endpoints, evitando
+    // que o Spring tente carregar o JwtDecoder do SecurityConfig real
+    @Configuration
+    static class TestSecurityConfig {
+        @Bean
+        SecurityFilterChain testFilterChain(HttpSecurity http) throws Exception {
+            http
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+            return http.build();
+        }
+    }
+
     @Autowired
-    private MockMvc mvc; // Objeto que simula as requisições HTTP (GET, POST, PUT e DELETE)
+    private MockMvc mvc;
 
     @MockitoBean
-    private UsuariosService service; // Substitui o Service real por um mock
+    private UsuariosService service;
 
     @Test
-    @WithMockUser // Evita o erro 401 simulando usuário autenticado
+    @WithMockUser // Garante usuário autenticado no contexto do Spring Security
     void deveRetornarStatus404AoBuscarUsuarioInexistente() throws Exception {
-        // ARRANGE - Preparar
+        // ARRANGE
         Long idInexistente = 99L;
 
-        // Quando o controller pedir para o service buscar o ID 99, simulamos o
-        // lançamento da exceção
         when(service.buscarPorId(idInexistente))
                 .thenThrow(new ResourceNotFoundException("Usuário não encontrado com ID: " + idInexistente));
 
-        // ACT & ASSERT - Executar e Validar
-        // Faz o GET simulado e valida se o status retornado é 404 (Not Found)
+        // ACT & ASSERT
         mvc.perform(get("/api/v1/usuarios/" + idInexistente))
-                .andExpect(status().isNotFound()); // Valida o HTTP 404
+                .andExpect(status().isNotFound());
     }
 }
