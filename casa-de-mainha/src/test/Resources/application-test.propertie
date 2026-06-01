@@ -1,0 +1,15 @@
+# 1. Configurações do Banco H2 em memória para os Testes
+spring.datasource.url=jdbc:h2:mem:casademainha_test;DB_CLOSE_DELAY=-1;NON_KEYWORDS=KEY,VALUE
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+
+# 2. Configurações do JPA / Hibernate para os Testes
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.sql.init.mode=always
+spring.jpa.show-sql=true
+
+# 3. Solução para o erro do Spring Security (JWT Simétrico de Teste)
+# Definimos apenas a chave secreta com tamanho suficiente em Base64 e deixamos o issuer-uri fora.
+spring.security.oauth2.resourceserver.jwt.secret-key=MDAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTA=

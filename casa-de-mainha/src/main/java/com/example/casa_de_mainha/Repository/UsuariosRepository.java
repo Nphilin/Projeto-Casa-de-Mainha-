@@ -10,9 +10,9 @@ import java.util.Optional;
 @Repository
 public interface UsuariosRepository extends CrudRepository<Usuarios, Long> {
 
-    List<Usuarios> listarLoginContainingIgnoreCase(String login);
+    List<Usuarios> findByLoginContainingIgnoreCase(String login);
 
-    Optional<Usuarios> buscarporLoginIgnoreCase(String login);
+    Optional<Usuarios> findByLoginIgnoreCase(String login);
 
     boolean existsByLoginIgnoreCase(String login);
 

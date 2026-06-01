@@ -1,56 +1,64 @@
 package com.example.casa_de_mainha.Controller;
 
-import com.example.casa_de_mainha.Entity.Consumo;
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.casa_de_mainha.DTO.ConsumoRequestDTO;
+import com.example.casa_de_mainha.DTO.ConsumoResponseDTO;
 import com.example.casa_de_mainha.Service.ConsumoService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 @RestController
 @RequestMapping("/api/v1/consumos")
-@RequiredArgsConstructor // Injeção via construtor, remova o @Autowired [cite: 66]
+@RequiredArgsConstructor
 public class ConsumoController {
 
-    private final ConsumoService service; // O Controller passa a delegar tudo ao Service [cite: 96]
+    private final ConsumoService service;
 
-    // 1. Registrar um novo consumo (POST = 201 Created) [cite: 254, 255]
     @PostMapping
-    public ResponseEntity<Consumo> criar(@Valid @RequestBody Consumo consumo) { // @Valid aciona as anotações da entity [cite: 155]
-        return ResponseEntity.status(201).body(service.save(consumo));
+    public ResponseEntity<ConsumoResponseDTO> criar(@Valid @RequestBody ConsumoRequestDTO dto) {
+        return ResponseEntity.status(201).body(service.save(dto));
     }
 
-    // 2. Listar todos
     @GetMapping
-    public ResponseEntity<Iterable<Consumo>> listarTodos() {
-        return ResponseEntity.ok(service.findAll());
+    @Operation(summary = "Listar todos os consumos cadastrados")
+    @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
+    public ResponseEntity<List<ConsumoResponseDTO>> listarTodos() {
+        return ResponseEntity.ok(service.listar());
     }
 
-    // 3. Buscar por reserva
     @GetMapping("/reserva/{reservaId}")
-    public ResponseEntity<Iterable<Consumo>> listarPorReserva(@PathVariable Long reservaId) {
+    public ResponseEntity<List<ConsumoResponseDTO>> listarPorReserva(@PathVariable Long reservaId) {
         return ResponseEntity.ok(service.findByReservaId(reservaId));
     }
 
-    // 4. Buscar específico
     @GetMapping("/{id}")
-    public ResponseEntity<Consumo> buscarPorId(@PathVariable Long id) {
-        // Toda a lógica de .map() e .orElse() saiu, o Service faz tudo [cite: 109, 111]
+    public ResponseEntity<ConsumoResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    // 5. Atualizar (PUT = 200 OK) [cite: 256, 257]
     @PutMapping("/{id}")
-    public ResponseEntity<Consumo> atualizar(@PathVariable Long id, @Valid @RequestBody Consumo dados) {
-        return ResponseEntity.ok(service.atualizar(id, dados));
+    public ResponseEntity<ConsumoResponseDTO> atualizar(@PathVariable Long id,
+            @Valid @RequestBody ConsumoRequestDTO dto) {
+        return ResponseEntity.ok(service.atualizar(id, dto));
     }
 
-    // 6. Remover (DELETE = 204 No Content) [cite: 258, 259]
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         service.deletar(id);
-        return ResponseEntity.noContent().build(); // Retorna 204 [cite: 252]
+        return ResponseEntity.noContent().build();
     }
 }

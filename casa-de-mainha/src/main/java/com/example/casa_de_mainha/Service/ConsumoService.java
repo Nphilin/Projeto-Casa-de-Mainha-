@@ -1,70 +1,86 @@
 package com.example.casa_de_mainha.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
-import com.example.casa_de_mainha.Repository.ConsumoRepository;
 
+import com.example.casa_de_mainha.DTO.ConsumoRequestDTO;
+import com.example.casa_de_mainha.DTO.ConsumoResponseDTO;
 import com.example.casa_de_mainha.Entity.Consumo;
 import com.example.casa_de_mainha.Exception.ResourceNotFoundException;
 import com.example.casa_de_mainha.Exception.ValidationException;
+import com.example.casa_de_mainha.Repository.ConsumoRepository;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor // Lombok gera o construtor com final fields (DI)
+@RequiredArgsConstructor
 public class ConsumoService {
 
     private final ConsumoRepository consumoRepository;
 
-    @Transactional(readOnly = true) // Otimiza leituras: sem lock, sem flush [cite: 86, 87]
-    public Iterable<Consumo> findAll() {
-        return consumoRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<ConsumoResponseDTO> listar() {
+        return StreamSupport.stream(consumoRepository.findAll().spliterator(), false)
+                .map(ConsumoResponseDTO::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Consumo findById(Long id) {
-        // Lança exceção se não encontrado, nunca retorna null [cite: 90, 91]
-        return consumoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Consumo não encontrado com o id " + id));
+    public ConsumoResponseDTO findById(Long id) {
+        Consumo consumo = consumoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Consumo não encontrado com o ID: " + id));
+
+        return ConsumoResponseDTO.from(consumo);
     }
 
     @Transactional(readOnly = true)
-    public List<Consumo> findByReservaId(Long reservaId) {
-        return consumoRepository.findByReservaId(reservaId);
+    public List<ConsumoResponseDTO> findByReservaId(Long reservaId) {
+        List<Consumo> consumos = consumoRepository.findByReservaId(reservaId);
+        return consumos.stream()
+                .map(ConsumoResponseDTO::from)
+                .toList();
     }
 
-    @Transactional // Atomicidade: rollback automático em exceção [cite: 88, 89]
-    public Consumo save(Consumo consumo) {
+    @Transactional
+    public ConsumoResponseDTO save(ConsumoRequestDTO dto) {
         for (Consumo existente : consumoRepository.findAll()) {
-            if (existente.getDescricao() != null && existente.getDescricao().equalsIgnoreCase(consumo.getDescricao())) {
-                throw new ValidationException("Consumo", consumo.getDescricao());
+            if (existente.getDescricao() != null && existente.getDescricao().equalsIgnoreCase(dto.descrição())) {
+                throw new ValidationException("Consumo", dto.descrição());
             }
         }
-        return consumoRepository.save(consumo);
+
+        Consumo consumo = new Consumo();
+        consumo.setReserva(dto.reserva());
+        consumo.setDescricao(dto.descrição());
+        consumo.setValor(dto.valor());
+        consumo.setDataConsumo(dto.dataConsumo());
+
+        Consumo consumoSalvo = consumoRepository.save(consumo);
+        return ConsumoResponseDTO.from(consumoSalvo);
     }
 
-    // A lógica do PUT veio para cá [cite: 262, 267]
     @Transactional
-    public Consumo atualizar(Long id, Consumo dados) {
-        // 1. Busca (lança 404 se não existir graças ao método acima) [cite: 269]
-        Consumo atual = findById(id);
+    public ConsumoResponseDTO atualizar(Long id, ConsumoRequestDTO dto) {
+        Consumo atual = consumoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Consumo não encontrado com o ID: " + id));
 
-        // 2. Atualiza só os campos permitidos. Nunca faça atual = dados. [cite: 271,
-        // 287, 288]
-        atual.setDescricao(dados.getDescricao());
-        atual.setValor(dados.getValor());
-        atual.setReserva(dados.getReserva());
+        atual.setDescricao(dto.descrição());
+        atual.setValor(dto.valor());
+        atual.setReserva(dto.reserva());
+        atual.setDataConsumo(dto.dataConsumo());
 
-        // 3. Salva e retorna atualizado [cite: 275, 276]
-        return consumoRepository.save(atual);
+        Consumo consumoAtualizado = consumoRepository.save(atual);
+        return ConsumoResponseDTO.from(consumoAtualizado);
     }
 
-    // A lógica do DELETE veio para cá [cite: 277, 279]
     @Transactional
     public void deletar(Long id) {
-        // Garante 404 antes de tentar deletar e usa delete(obj) [cite: 281, 289, 290]
-        Consumo consumo = findById(id);
+        Consumo consumo = consumoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Consumo não encontrado com o ID: " + id));
         consumoRepository.delete(consumo);
     }
 }

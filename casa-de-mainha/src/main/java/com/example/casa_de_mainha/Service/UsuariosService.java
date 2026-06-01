@@ -27,7 +27,7 @@ public class UsuariosService {
         return StreamSupport.stream(repository.findAll().spliterator(), false)
                 .map(UsuariosResponseDTO::from) // Converte Entity para DTO
                 .collect(Collectors.toList());
-    } // <-- CHAVE QUE ESTAVA FALTANDO E QUEBRAVA O SEU CÓDIGO!
+    }
 
     // 2. BUSCAR POR ID (Retorna DTO para o Controller)
     @Transactional(readOnly = true)
