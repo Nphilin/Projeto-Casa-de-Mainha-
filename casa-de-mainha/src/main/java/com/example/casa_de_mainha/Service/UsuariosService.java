@@ -1,19 +1,20 @@
 package com.example.casa_de_mainha.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.casa_de_mainha.DTO.UsuariosRequestDTO;
 import com.example.casa_de_mainha.DTO.UsuariosResponseDTO;
 import com.example.casa_de_mainha.Entity.Usuarios;
-import com.example.casa_de_mainha.Repository.UsuariosRepository;
 import com.example.casa_de_mainha.Exception.ResourceNotFoundException;
 import com.example.casa_de_mainha.Exception.ValidationException;
-
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import java.util.List;
+import com.example.casa_de_mainha.Repository.UsuariosRepository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -75,13 +76,12 @@ public class UsuariosService {
     // 5. DELETAR
     @Transactional
     public void deletar(Long id) {
-        // Busca o usuario pelo ID
-        UsuariosResponseDTO usuarioDto = buscarPorId(id);
+        // 1. Busca a ENTIDADE (Usuario) no banco, e não o DTO
         Usuarios usuario = repository.findById(id)
                 // Caso não encontrado lança a exception not found.
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
 
-        // Se ecnotrado ele deleta.
+        // 2. Se encontrado, ele deleta a entidade.
         repository.delete(usuario);
     }
 }
